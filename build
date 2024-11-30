@@ -1,0 +1,6 @@
+#!/bin/bash
+
+VERSION=`grep org.opencontainers.image.version Dockerfile | cut -d= -f 2 | tr -d \"`
+NAME=thomo/j8-ant
+
+docker build -t ${NAME}:${VERSION} -t ${NAME} .

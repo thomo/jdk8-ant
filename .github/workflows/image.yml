@@ -1,0 +1,40 @@
+# language: github actions
+
+name: build image
+
+on:
+  push:
+    branches: main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: checkout code
+        uses: actions/checkout@v4
+      
+      - name: login to docker hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}  
+      
+      - name: install buildx
+        id: buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          version: latest
+
+      - name: Read version from properties file
+        id: read_property
+        uses: Reedyuk/read-properties@v1.0.4
+        with:
+          path: 'build.properties'
+          property: 'version'
+
+      - name: build the image
+        run: |
+          docker buildx build --push \
+            --tag thomo/j8-ant:${{ steps.read_property.outputs.value }} \
+            --tag thomo/j8-ant:latest \
+            --platform linux/amd64,linux/arm64 .
